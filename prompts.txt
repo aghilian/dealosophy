@@ -1,0 +1,181 @@
+
+const balanceSheetPrompt =
+  // Make sure to label the total current assets row as 'Current Assets', total current liabilities row as 'Current Liabilities', total assets row as 'Total Assets', total liabilities row as 'Total Liabilities', retained earnings row as 'Retained Earnings', inventory row as 'Inventory', accounts receivable row as 'Accounts Receivable', and accounts payable row as 'Accounts Payable'.
+  `Extract the balance sheet as JSON, where each element is a dictionary with the following keys: 'Cash', 'Accounts Receivable', 'Accounts Payable', 'Inventory', 'Current Assets', 'Current Liabilities', 'Total Assets', 'Total Liabilities', 'Retained Earnings'. Only extract these entries from the balance sheet and do not extract any other data. Each dictionary should have the years as keys and the values as the corresponding balance sheet values. If a value does not exist, use 0 as a placeholder. Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values. Format the JSON like this: {
+  "Balance Sheet": {
+    "Cash": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Accounts Receivable": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Accounts Payable": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Inventory": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Current Assets": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Current Liabilities": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Total Assets": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Total Liabilities": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Retained Earnings": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    }
+  }
+}`;
+// "Give me the balance sheet as a csv and do not put quotations, any prior text, or prefix it with csv. Just give the CSV only and remove all the commas within numbers and use 0 as a placeholder if the value does not exist. Always label total current assets row as 'Current Assets' and total current liabilities row as 'Current Liabilities'. Label total assets as 'Total Assets' and total liabilities as 'Total Liabilities'. Label retained earnings as 'Retained Earnings' and label inventory as 'Inventory'. Label accounts receivable as 'Accounts Receivable' and total shareholders equity as 'Shareholders Equity'. Label accounts payable as only 'Accounts Payable'. Only follow these naming conventions, even if the sheet names it differently. Do NOT remove any rows except ones that contain no data. If a row only has a header and does not contain any numbers, remove it as well. Make sure the years first row has a placeholder first column so the years match with the rest of the data.";
+
+const incomeSheetPrompt = `Extract the income statement as JSON, where each element is a dictionary with the following keys: 'Revenue', 'Profit', 'Expenses', 'COGS', 'Net Income'. Only extract these entries from the income statement and do not extract any other data. Each dictionary should have the years as keys and the values as the corresponding income statement values. If a value does not exist, use 0 as a placeholder. Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values. Do not have any lists as elements. Format the JSON like this: {
+  "Income Statement": {
+    "Revenue": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Profit": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Expenses": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "COGS": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    },
+    "Net Income": {
+      "year1": number,
+      "year2": number,
+      "year3": number
+    }
+  }
+}`;
+
+const companyInfoPrompt = `Extract the following information about the company and if the information is unknown put null: Name, Years in Business, Owner Name(s), Employee Info Summary, What is this Business.
+ Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values.
+Output the information into a JSON Object in the following format.\n
+{
+    "Company Info": {
+        "Name": string,
+        "Years": number,
+        "Owner(s)": string,
+        "Employees", string,
+        "Business Info": string
+    }
+}`;
+
+const brokerInfoPrompt = `Extract the following information about the broker and if the information is unknown put null: Broker Agent, Brokerage.
+ Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values.
+ Output the information into a JSON Object in the following format.
+ {
+    "Broker Info": {
+        "Broker Agent": string,
+        "Brokerage": string
+    }
+}    
+`;
+const locationInfoPrompt = `Extract the following information in the JSON Object below about the location and if the information is unknown put null.
+ For the "Location Description" field, give a description of the location or a summary.
+ Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values.
+ Output the information into a JSON Object in the following format.
+ {
+    "Location Info": {
+        "Address": string,
+        "Facilities": {
+            "Ownership Type": string,
+            "Lease": {
+                "Per Month Rent": number,
+                "Renewal Status": string,
+            },
+            "Location Size": {
+                "Size": number,
+                "Unit of Measurement": string
+            },
+            "Location Summary": string    
+        }
+    }    
+}
+`;
+
+const businessInfoPrompt = `Extract the following information in the JSON Object below about the business and if the information is unknown put null.
+For any fields that contain "Summary", give a brief sumamry relating to that field.
+For fields under "Industry Info", for unknown values, use public information accessable on the internet.
+Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values.
+Output the information into a JSON Object in the following format.
+{
+    "Business Info": {
+        "Customers and market": {
+                "Typical Customers Summary": string,
+                "Market Summary": string,
+                "Diversity of Customers: {
+                    "Percentage of sales by top customer": number,
+                    "Diversity Summary": string,
+                }
+        },
+        "Products": string[],
+        "Growth Opportunities": string[],
+        "Strengths": string[],
+        "Industry Info": {
+                "Industry": string,
+                "CAGR": number,
+                "Average Profit Margin Percentage": number,
+                "Industry Diversity Summary": string,
+                "Industry Size Summary": string 
+        }
+    }    
+}
+`;
+
+
+""" Extract the income statement as JSON, where the first object is "Years" as key and values being an array
+of years for which data is reported. The number of years available sets the fixed length of all the following arrays.
+The second and all the proceeding keys will be the account or items reported in the income statement, each paired 
+with the value as an array of fixed length that includes the numbers reported for that account for the corresponding year.
+Wherever no number is reported insert a zero. If you come across a category heading include it as a key with the value 
+being an array of the same lengths as all the other arrays that includes the blank string repeated.
+If you come across a row with first cell empty but it includes numbers, then it must be a sum and use
+your knowledge of finance and give the key a meaningful finance title like "COGS" or "Normalized EBITDA".
+Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or 
+put any quotations around the values. Format the JSON like this example:
+{
+    "Years" : [2022, 2023, 2024],
+    "Revenue" : [number, number, number],
+    "Cost of Sales" : ["", "", ""],
+    "Materials" : [number, number, number],
+    "Wages and employee benefits" : [number, number, number],
+    "Subcontactors" : [number, number, number],
+    "" : [number, number, number],
+    "Gross Profit" : [number, number, number]
+}
+"""
