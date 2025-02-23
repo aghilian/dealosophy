@@ -28,13 +28,15 @@ def format_excel(ws):
     for row in ws.iter_rows(min_row=2):
         for cell in row:
             cell.font = body_font
-            cell.border = border_style
             if isinstance(cell.value, (int, float)):
-                cell.number_format = "#,##0;(#,##0)"
+                if cell.value == 0:
+                    cell.number_format = " "  # Make zero values appear as empty
+                else:
+                    cell.number_format = "#,##0;(#,##0)"
                 cell.alignment = right_aligned_text
             else:
                 cell.alignment = left_aligned_text
-    
+
  # Adjust column widths dynamically
     for col in range(1, ws.max_column + 1):
         column_letter = get_column_letter(col)
