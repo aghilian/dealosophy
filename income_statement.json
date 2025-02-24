@@ -9,25 +9,15 @@
         531879,
         627361
     ],
-    "Total Revenue": [
-        "",
-        "",
-        ""
-    ],
     "Cost of Goods Sold": [
         39125,
         174592,
         141138
     ],
-    "Gross Profit": [
+    "   Gross Profit": [
         291135,
         357287,
         486223
-    ],
-    "Gross Profit Margin (%)": [
-        "",
-        "",
-        ""
     ],
     "Expenses": [
         "",
@@ -40,19 +30,19 @@
         4679
     ],
     "   Amortization": [
+        "",
         30020,
-        45949,
-        ""
+        45949
     ],
     "   Charitable donations": [
-        4000,
         "",
+        4000,
         ""
     ],
     "   Insurance": [
-        1568,
-        2687,
-        2788
+        4070,
+        6478,
+        4143
     ],
     "   Interest expense": [
         4093,
@@ -80,9 +70,9 @@
         14866
     ],
     "   Telephone": [
-        1390,
-        4876,
-        4639
+        2220,
+        5145,
+        4661
     ],
     "   Travel": [
         121,
@@ -90,14 +80,14 @@
         8910
     ],
     "   Wages & benefits": [
-        "",
+        0,
         15311,
         23523
     ],
     "   Other Expenses": [
         4761,
-        "",
-        ""
+        0,
+        0
     ],
     "Total Operating Expenses": [
         71313,
@@ -110,9 +100,9 @@
         331551
     ],
     "Earnings before Income Taxes": [
-        "",
-        "",
-        ""
+        219822,
+        213405,
+        331551
     ],
     "Income taxes": [
         "",
@@ -120,83 +110,8 @@
         40449
     ],
     "Net Income for the year": [
-        220822,
+        219822,
         188119,
         291102
-    ],
-    "Normalizing Adjustments": [
-        "",
-        "",
-        ""
-    ],
-    "   Interest": [
-        4093,
-        16776,
-        18300
-    ],
-    "   Income taxes": [
-        "",
-        25286,
-        40449
-    ],
-    "   Donations": [
-        4000,
-        "",
-        ""
-    ],
-    "   Salaries and wages": [
-        "",
-        "",
-        ""
-    ],
-    "   Cost of goods sold": [
-        12267,
-        30217,
-        44868
-    ],
-    "   Office expenses": [
-        17876,
-        32748,
-        19332
-    ],
-    "   Meals and entertainment": [
-        4619,
-        5830,
-        4657
-    ],
-    "Total Addbacks": [
-        41935,
-        155316,
-        189892
-    ],
-    "   Deductions": [
-        "",
-        "",
-        ""
-    ],
-    "   Owner salary replacement": [
-        -23333,
-        -40000,
-        -40000
-    ],
-    "Total Deductions": [
-        -23333,
-        -40000,
-        -40000
-    ],
-    "Normalized SDE": [
-        "",
-        "",
-        ""
-    ],
-    "SDE - 7 months": [
-        "",
-        "",
-        ""
-    ],
-    "Gap1": [
-        "",
-        "",
-        ""
     ]
 }
