@@ -7,22 +7,8 @@
         2023,
         2024
     ],
-    "ASSETS": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-    ],
-    "Current Assets": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-    ],
+    "ASSETS": "",
+    "Current Assets": "",
     "Cash": [
         403161,
         315402,
@@ -71,14 +57,7 @@
         531684,
         488594
     ],
-    "Non Current Assets": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-    ],
+    "Non Current Assets": "",
     "Equipment": [
         126461,
         99810,
@@ -94,14 +73,6 @@
         441075,
         319977,
         0
-    ],
-    "Due from 2695035 Ontario Limited": [
-        210000,
-        460000,
-        6371,
-        "",
-        "",
-        ""
     ],
     "Total Non Current Assets": [
         296138,
@@ -119,22 +90,8 @@
         885650,
         516501
     ],
-    "LIABILITIES AND SHAREHOLDER'S EQUITY": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-    ],
-    "Current Liabilities": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-    ],
+    "LIABILITIES": "",
+    "Current Liabilities": "",
     "Accounts payable and accrued charges": [
         413697,
         472092,
@@ -151,14 +108,6 @@
         28006,
         33904
     ],
-    "Due to shareholders": [
-        38474,
-        30433,
-        25968,
-        23587,
-        "",
-        ""
-    ],
     "Total Current Liabilities": [
         467548,
         531691,
@@ -167,7 +116,8 @@
         432895,
         380280
     ],
-    "Long Term Liabilities": [
+    "Long Term Liabilities": "",
+    "Total Long Term Liabilities": [
         0,
         0,
         0,
@@ -183,14 +133,7 @@
         432895,
         380280
     ],
-    "Shareholder's Equity": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-    ],
+    "Shareholder's Equity": "",
     "Paid Up Capital": [
         10,
         30,
@@ -214,5 +157,13 @@
         512604,
         452755,
         136221
+    ],
+    "Total Shareholder's Earnings & Liabilities": [
+        1670541,
+        1189708,
+        1593158,
+        1022845,
+        885650,
+        516501
     ]
 }

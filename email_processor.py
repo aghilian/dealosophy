@@ -23,7 +23,7 @@ assistant = client.beta.assistants.create(
 vector_store = client.beta.vector_stores.create(name="Company Data")
  
 # Ready the files for upload to OpenAI
-file_paths = [r"pdfs\wood.pdf"]
+file_paths = [r"pdfs\RDI Chemical CIM Sep 2024.pdf"]
 file_streams = [open(path, "rb") for path in file_paths]
  
 # Upload and poll the status

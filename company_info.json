@@ -3,12 +3,12 @@
     "Years": 40,
     "Owner(s)": null,
     "Number of employees": 7,
-    "Employees": "The company employs a president, sales representatives, a lab chemist (part-time), a controller, batchers, and clerical staff\u30104:4\u2020source\u3011.",
-    "Business info": "RDI Chemical is involved in the manufacturing and distribution of a wide range of chemicals for various applications, including water treatment solutions for HVAC and mechanical systems, janitorial products, and more\u30104:2\u2020source\u3011.",
-    "Industry": "Chemical manufacturing and distribution\u30104:4\u2020source\u3011",
-    "Address": "1875 Drew Rd, Mississauga, ON L5S1J5\u30104:0\u2020source\u3011",
-    "Facilities ownership type": null,
+    "Employees": "President, Sales Manager, Sales Representatives, Lab Chemist, Batchers, Receivables/Clerical, Bookkeeper",
+    "Business info": "Chemical manufacturing and distribution, focuses on water treatment, janitorial products, environmental cleaners, solvents, detergents, healthcare-related chemicals",
+    "Industry": "Chemical manufacturing and distribution",
+    "Address": "1875 Drew Rd, Mississauga, ON L5S1J5",
+    "Facilities ownership type": "Lease",
     "Lease per month rent": 122500,
-    "Lease expiry and renewal status": "Expiry: February 28, 2025; Renewal not recommended due to building size and condition\u30104:1\u2020source\u3011",
-    "Location size in Sqare feet": 17500
+    "Lease expiry and renewal status": "Lease expiry: February 28, 2025, Renewal not recommended due to facility's size and condition",
+    "Location size in Square feet": 17500
 }
