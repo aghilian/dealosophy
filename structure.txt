@@ -1,0 +1,5 @@
+Module	Responsibility
+main.py	            Simple entry point to trigger processing
+email_fetcher.py	Fetches, parses, and processes emails; tracks user history
+attachment_handler.py	Handles folder creation and attachment processing
+email_sender.py	    Sends acknowledgment emails
