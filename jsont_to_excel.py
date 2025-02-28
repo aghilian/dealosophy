@@ -1,8 +1,39 @@
 import json
 import pandas as pd
+import sys
+import os
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 from openpyxl.utils import get_column_letter
+
+# ✅ Get user_email and user_history_count from command-line arguments
+if len(sys.argv) < 3:
+    print("Error: Missing arguments. Usage: json_to_excel.py <user_email> <user_history_count>")
+    sys.exit(1)
+
+user_email = sys.argv[1]
+user_history_count = str(sys.argv[2])  # Ensure it's a string for paths
+
+# ✅ Define paths dynamically
+json_folder = os.path.join("users", user_email, user_history_count, "json_files")
+excel_folder = os.path.join("users", user_email, user_history_count, "excel_files")
+
+
+# ✅ Ensure output folder exists
+os.makedirs(excel_folder, exist_ok=True)
+
+# ✅ Use dynamic path for JSON file
+data_path = os.path.join(json_folder, "income_statement.json")
+
+if not os.path.exists(data_path):
+    print(f"❌ ERROR: JSON file not found: {data_path}")
+    sys.exit(1)
+
+with open(data_path, "r") as f:
+    data = json.load(f)
+
+# ✅ Define dynamic output file
+target_excel = os.path.join(excel_folder, "Financial_Statement.xlsx")
 
 def format_excel(ws):
     """Applies professional formatting to the Excel sheet."""

@@ -1,6 +1,7 @@
 import imaplib
 import email
 import re
+import subprocess
 from email.header import decode_header
 from email.utils import parsedate_to_datetime
 from attachment_handler import process_attachments
@@ -13,6 +14,19 @@ def connect_email():
     mail.login(EMAIL_USER, EMAIL_PASS)
     mail.select("inbox")
     return mail
+
+# get the last email
+def get_last_email(mail):
+    """Fetches the latest email ID, whether read or unread."""
+    status, messages = mail.search(None, 'ALL')  # ✅ Fetch all emails (both read & unread)
+    email_ids = messages[0].split()
+
+    if not email_ids:
+        print("❌ No emails found.")
+        return None  # No emails exist in the inbox
+
+    last_email_id = email_ids[-1]  # ✅ Get only the last email
+    return last_email_id
 
 def get_unread_emails(mail):
     """Fetches unread email IDs from the inbox."""
@@ -58,6 +72,7 @@ def process_all_emails():
 
     print("📥 Checking for unread emails...")
     email_ids = get_unread_emails(mail)
+    # email_ids = get_last_email(mail)
     print(f"📧 Found {len(email_ids)} unread emails.")
 
     for email_id in email_ids:
@@ -71,6 +86,14 @@ def process_all_emails():
 
         # Send acknowledgment email with subject and time
         send_acknowledgment(user_email, subject, received_time, has_attachment)
+        
+        # ✅ Call extract_data.py if the email has attachments
+        if has_attachment:
+            import subprocess
+
+            # Run extract_data.py with parameters
+            subprocess.run(["python", "extract_data.py", user_email, str(user_history_count)])
+            
 
     mail.logout()
     print("✅ Finished processing all unread emails.")

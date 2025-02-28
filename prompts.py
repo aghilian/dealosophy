@@ -220,14 +220,15 @@ ADJUSTMENTS_PROMPT = """
 COMPANY_INFO_PROMPT = """
 Extract the following information in this exact order about the company 
 and if the information is unknown put null: 
-Name, Years in Business, Owner Name(s), Number of employees, Employee Info Summary, 
+Name, Asking price, Years in Business, Owner Name(s), Number of employees, Employee Info Summary, 
 What is this Business, What industry or industries is this business in, Business Address, facilities ownership type, lease per month rent, lease
 renewal status, location size in sqaure feet.
 Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values.
 Output the information into a JSON Object in the following format.
 {
         "Name": string,
-        "Years": number,
+        "Asking price": number,
+        "Years in business": number,
         "Owner(s)": string,
         "Number of employees" : number,
         "Employees", string,
@@ -250,12 +251,12 @@ Brokerage firm, Broker Agent, Broker agent phone number, broker agent email.
  Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values.
  Output the information into a JSON Object in the following format.
  {
-    "Broker Info": {
-        "Brokerage firm": string,
-        "Broker Agent": string,
-        "Broker phone": string,
-        "Broker email" : string
-    }
+
+    "Brokerage firm": string,
+    "Broker Agent": string,
+    "Broker phone": string,
+    "Broker email" : string
+    
 }    
 """
 

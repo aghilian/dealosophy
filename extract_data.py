@@ -1,13 +1,39 @@
-import pandas as pd
 import time
 import json
 import re
+import sys
+import os
+import subprocess
 from prompts import *
 from openai import OpenAI
 from dotenv import load_dotenv
 load_dotenv()
 
 start_time = time.time()  # Start measuring time
+
+# Get user_email and user_history_count from command-line arguments
+if len(sys.argv) < 3:
+    print("Error: Missing arguments. Usage: extract_data.py <user_email> <user_history_count>")
+    sys.exit(1)
+
+user_email = sys.argv[1]
+user_history_count = str(sys.argv[2])  # Convert back to integer
+
+# ✅ Define relative paths
+attachments_folder = os.path.join("users", user_email, user_history_count, "attachments")
+json_folder = os.path.join("users", user_email, user_history_count, "json_files")
+
+# ✅ Verify attachments folder exists
+if not os.path.exists(attachments_folder):
+    print(f"❌ ERROR: Attachments folder does not exist: {attachments_folder}")
+    sys.exit(1)
+
+# ✅ Find attachment files (Currently processing PDFs)
+file_paths = [os.path.join(attachments_folder, file) for file in os.listdir(attachments_folder) if file.endswith(".pdf")]
+
+if not file_paths:
+    print(f"❌ No valid files found in {attachments_folder}")
+    sys.exit(1)
 
 client = OpenAI()
 
@@ -23,7 +49,6 @@ assistant = client.beta.assistants.create(
 vector_store = client.beta.vector_stores.create(name="Company Data")
  
 # Ready the files for upload to OpenAI
-file_paths = [r"pdfs\wood.pdf"]
 file_streams = [open(path, "rb") for path in file_paths]
  
 # Upload and poll the status
@@ -37,17 +62,15 @@ assistant = client.beta.assistants.update(
     tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
 )
 
-# Debugging: Print assistant details
-# print("Updated assistant:", assistant)
-
 # Create a thread
 thread = client.beta.threads.create()
 
-# Debugging: Print thread details
-# print("Created thread:", thread)
-
 def extract_and_save(prompt, filename):
     """Function to extract financial data and save as JSON"""
+    
+    filename = os.path.join(json_folder, filename)  # ✅ Automatically append json_folder
+    os.makedirs(os.path.dirname(filename), exist_ok=True)  # ✅ Ensure json_files/ is created before saving
+    
     # Create the message
     message = client.beta.threads.messages.create(
         thread_id=thread.id,
@@ -132,3 +155,5 @@ print("Assistant deleted.")
 
 end_time = time.time()  # End measuring time
 print(f"Total execution time: {end_time - start_time:.2f} seconds")
+
+subprocess.run(["python", "json_to_excel2.py", user_email, str(user_history_count)])
