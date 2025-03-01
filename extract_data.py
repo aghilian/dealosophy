@@ -19,6 +19,14 @@ if len(sys.argv) < 3:
 user_email = sys.argv[1]
 user_history_count = str(sys.argv[2])  # Convert back to integer
 
+
+# Get optional message_id and subject for threaded email replies
+message_id = sys.argv[3] if len(sys.argv) > 3 else None
+subject = sys.argv[4] if len(sys.argv) > 4 else None
+
+
+print("✝️ extract_data received from email_fetcher.py", user_email, user_history_count, message_id, subject)
+
 # ✅ Define relative paths
 attachments_folder = os.path.join("users", user_email, user_history_count, "attachments")
 json_folder = os.path.join("users", user_email, user_history_count, "json_files")
@@ -102,6 +110,7 @@ def extract_and_save(prompt, filename):
         if message.role == "assistant" and hasattr(message, "content") and message.content:
             assistant_response = message.content[0].text.value
             print(assistant_response)
+    print("Raw Assistant Response:", assistant_response)
 
         # Ensure valid JSON response
     parsed_json = None
@@ -137,16 +146,16 @@ def extract_and_save(prompt, filename):
 extract_and_save(COMPANY_INFO_PROMPT, "company_info.json")
 
 # Extract Broker Info
-extract_and_save(BROKER_INFO_PROMPT, "broker_info.json")
+# extract_and_save(BROKER_INFO_PROMPT, "broker_info.json")
 
 # Extract Income Statement
-extract_and_save(INCOME_STATEMENT_PROMPT, "income_statement.json")
+# extract_and_save(INCOME_STATEMENT_PROMPT, "income_statement.json")
 
 # Extract Balance Sheet
-extract_and_save(BALANCE_SHEET_PROMPT, "balance_sheet.json")
+# extract_and_save(BALANCE_SHEET_PROMPT, "balance_sheet.json")
 
 # Extract Cash Flow Statement
-extract_and_save(CASH_FLOW_STATEMENT_PROMPT, "cash_flow_statement.json")
+# extract_and_save(CASH_FLOW_STATEMENT_PROMPT, "cash_flow_statement.json")
 
 
 # Delete the assistant:
@@ -156,4 +165,5 @@ print("Assistant deleted.")
 end_time = time.time()  # End measuring time
 print(f"Total execution time: {end_time - start_time:.2f} seconds")
 
-subprocess.run(["python", "json_to_excel2.py", user_email, str(user_history_count)])
+subprocess.run(["python", "json_to_excel2.py", user_email, user_history_count, message_id, subject])
+print("🚣‍♀️ Message info sent to json_to_excel2.py", user_email, user_history_count, message_id, subject)

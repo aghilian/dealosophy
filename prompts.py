@@ -220,9 +220,9 @@ ADJUSTMENTS_PROMPT = """
 COMPANY_INFO_PROMPT = """
 Extract the following information in this exact order about the company 
 and if the information is unknown put null: 
-Name, Asking price, Years in Business, Owner Name(s), Number of employees, Employee Info Summary, 
-What is this Business, What industry or industries is this business in, Business Address, facilities ownership type, lease per month rent, lease
-renewal status, location size in sqaure feet.
+Company's Name, Asking price, Years in Business, Owner Name(s), Number of employees, Employee Info Summary, 
+What does this business do in less than 20 words, What industry or industries is this business in, Business Address, facilities ownership type, lease per month rent, lease
+renewal status briefly, location size in sqaure feet.
 Do not put any explaination, only output the raw json output. Do not prefix with any text such as json or put any quotations around the values.
 Output the information into a JSON Object in the following format.
 {

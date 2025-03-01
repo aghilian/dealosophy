@@ -17,6 +17,12 @@ if len(sys.argv) < 3:
 user_email = sys.argv[1]
 user_history_count = str(sys.argv[2])  # Ensure it's a string for paths
 
+# Get optional message_id and subject for threaded email replies
+message_id = sys.argv[3] if len(sys.argv) > 3 else None
+subject = sys.argv[4] if len(sys.argv) > 4 else None
+
+print("✝️ Message info received from extract_data.py", user_email, user_history_count, message_id, subject)
+
 def get_excel_filename(json_folder):
     """
     Determines the Excel file name based on company_info.json.
@@ -178,5 +184,6 @@ print(f"✅ Excel file '{target_excel}' has been created successfully!")
 
 # ✅ Send results via email
 print("📧 Sending results via email...")
-subprocess.run(["python", "send_results.py", user_email, target_excel])
+subprocess.run(["python", "send_results2.py", user_email, target_excel, message_id, subject ])
 
+print("🚣‍♀️ Message info sent to send_results2.py", user_email, target_excel, message_id, subject)

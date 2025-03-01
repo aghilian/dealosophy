@@ -5,7 +5,7 @@ import subprocess
 from email.header import decode_header
 from email.utils import parsedate_to_datetime
 from attachment_handler import process_attachments
-from quick_feedback import send_acknowledgment
+from quick_feedback2 import send_acknowledgment
 from config import EMAIL_USER, EMAIL_PASS, IMAP_SERVER
 
 def connect_email():
@@ -61,9 +61,10 @@ def parse_email(mail, email_id):
             # Process attachments but only update history if attachments exist
             has_attachment, user_history_count = process_attachments(msg, user_email)
 
-            return user_email, subject, received_time, has_attachment, user_history_count
+            message_id = msg.get("Message-ID")  # ✅ Extract the original Message-ID
+            return user_email, subject, received_time, has_attachment, user_history_count, message_id
 
-    return None, None, None, None, None
+    return None, None, None, None, None, None
 
 def process_all_emails():
     """Main function to process unread emails."""
@@ -76,7 +77,8 @@ def process_all_emails():
     print(f"📧 Found {len(email_ids)} unread emails.")
 
     for email_id in email_ids:
-        user_email, subject, received_time, has_attachment, user_history_count = parse_email(mail, email_id)
+        user_email, subject, received_time, has_attachment, user_history_count, message_id = parse_email(mail, email_id)
+
 
         if not user_email:
             print(f"⚠ Skipping email ID {email_id}, missing sender.")
@@ -85,14 +87,27 @@ def process_all_emails():
         print(f"📨 Email from: {user_email}, Subject: {subject}, Received: {received_time}, Attachments: {has_attachment}, History: {user_history_count}")
 
         # Send acknowledgment email with subject and time
-        send_acknowledgment(user_email, subject, received_time, has_attachment)
+        send_acknowledgment(user_email, subject, received_time, has_attachment, message_id)
+
+# # Change from:
+# if has_attachment:
+#     import subprocess
+#     subprocess.run(["python", "extract_data.py", user_email, str(user_history_count)])
+
         
         # ✅ Call extract_data.py if the email has attachments
         if has_attachment:
             import subprocess
-
-            # Run extract_data.py with parameters
-            subprocess.run(["python", "extract_data.py", user_email, str(user_history_count)])
+            # Pass message_id and subject to extract_data.py
+            subprocess.run([
+                "python", 
+                "extract_data.py", 
+                user_email, 
+                str(user_history_count),
+                message_id if message_id else "",  # Pass empty string if None
+                subject if subject else ""         # Pass empty string if None
+            ])
+            print("🚣‍♀️ Message info sent to extract_data2.py", user_email, user_history_count, message_id, subject)
             
 
     mail.logout()
