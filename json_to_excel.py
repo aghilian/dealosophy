@@ -2,7 +2,6 @@ import sys
 import os
 import json
 import pandas as pd
-import openpyxl
 import datetime
 import subprocess
 import itertools
@@ -184,6 +183,6 @@ print(f"✅ Excel file '{target_excel}' has been created successfully!")
 
 # ✅ Send results via email
 print("📧 Sending results via email...")
-subprocess.run(["python", "send_results2.py", user_email, target_excel, message_id, subject ])
+subprocess.run(["python", "send_results.py", user_email, target_excel, message_id, subject ])
 
-print("🚣‍♀️ Message info sent to send_results2.py", user_email, target_excel, message_id, subject)
+print("🚣‍♀️ Message info sent to send_results.py", user_email, target_excel, message_id, subject)

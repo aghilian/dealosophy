@@ -5,7 +5,7 @@ import subprocess
 from email.header import decode_header
 from email.utils import parsedate_to_datetime
 from attachment_handler import process_attachments
-from quick_feedback2 import send_acknowledgment
+from quick_feedback import send_acknowledgment
 from config import EMAIL_USER, EMAIL_PASS, IMAP_SERVER
 
 def connect_email():

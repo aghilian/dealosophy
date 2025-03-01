@@ -165,5 +165,5 @@ print("Assistant deleted.")
 end_time = time.time()  # End measuring time
 print(f"Total execution time: {end_time - start_time:.2f} seconds")
 
-subprocess.run(["python", "json_to_excel2.py", user_email, user_history_count, message_id, subject])
-print("🚣‍♀️ Message info sent to json_to_excel2.py", user_email, user_history_count, message_id, subject)
+subprocess.run(["python", "json_to_excel.py", user_email, user_history_count, message_id, subject])
+print("🚣‍♀️ Message info sent to json_to_excel.py", user_email, user_history_count, message_id, subject)
