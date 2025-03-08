@@ -59,9 +59,14 @@ def parse_email(mail, email_id):
                 received_time = "Unknown Time"
 
             # Process attachments but only update history if attachments exist
-            has_attachment, user_history_count = process_attachments(msg, user_email)
+            has_attachment, user_history_count, saved_files = process_attachments(msg, user_email)
 
             message_id = msg.get("Message-ID")  # ✅ Extract the original Message-ID
+            
+            # Print saved attachments for debugging
+            if saved_files:
+                print(f"📎 Attachments saved: {', '.join(saved_files)}")
+
             return user_email, subject, received_time, has_attachment, user_history_count, message_id
 
     return None, None, None, None, None, None
@@ -99,6 +104,7 @@ def process_all_emails():
         if has_attachment:
             import subprocess
             # Pass message_id and subject to extract_data.py
+            print('has attachment', user_email, str(user_history_count), message_id)
             subprocess.run([
                 "python", 
                 "extract_data.py", 

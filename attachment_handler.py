@@ -29,9 +29,10 @@ def get_next_email_folder(user_email):
     return email_folder, next_number  # ✅ Ensures two values are returned
 
 def process_attachments(msg, user_email):
-    """Extracts and processes attachments. Only creates a folder and updates history if attachments exist."""
+    """Extracts and processes all attachments in an email. Creates a folder and updates history if attachments exist."""
     has_attachment = False
     user_history_count = get_user_email_history(user_email)  # Get current count (before new email)
+    saved_files = []  # Store saved file paths
 
     if msg.is_multipart():
         for part in msg.walk():
@@ -39,13 +40,14 @@ def process_attachments(msg, user_email):
             if "attachment" in content_disposition:
                 filename = part.get_filename()
                 if filename:
-                    has_attachment = True
-                    email_folder, new_history_count = get_next_email_folder(user_email)  # Create new folder
+                    if not has_attachment:  
+                        email_folder, new_history_count = get_next_email_folder(user_email)  # Create new folder
+                        has_attachment = True  # Ensure folder is only created once
 
-                    # Save the attachment in the newly created folder
+                    # Save each attachment in the newly created folder
                     filepath = os.path.join(email_folder, filename)
-                    save_attachment(part, filepath)
+                    saved_path = save_attachment(part, filepath)
+                    if saved_path:
+                        saved_files.append(saved_path)
 
-                    return True, new_history_count  # Return updated history count
-
-    return False, user_history_count  # No folder created, return previous history count
+    return has_attachment, new_history_count if has_attachment else user_history_count, saved_files
