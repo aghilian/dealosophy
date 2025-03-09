@@ -7,13 +7,25 @@ from email.utils import parsedate_to_datetime
 from attachment_handler import process_attachments
 from quick_feedback import send_acknowledgment
 from config import EMAIL_USER, EMAIL_PASS, IMAP_SERVER
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def connect_email():
     """Connects to the IMAP email server and selects the inbox."""
-    mail = imaplib.IMAP4_SSL(IMAP_SERVER)
-    mail.login(EMAIL_USER, EMAIL_PASS)
-    mail.select("inbox")
-    return mail
+    try:
+        mail = imaplib.IMAP4_SSL(IMAP_SERVER)
+        mail.login(EMAIL_USER, EMAIL_PASS)
+        mail.select("inbox")
+        logging.info("Successfully connected to IMAP server.")
+        return mail
+    except imaplib.IMAP4.error as e:
+        logging.error(f"IMAP error: {e}")
+        return None
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {e}")
+        return None
 
 # get the last email
 def get_last_email(mail):
@@ -41,28 +53,47 @@ def extract_email(sender):
 def parse_email(mail, email_id):
     """Fetches and processes an email."""
     res, msg_data = mail.fetch(email_id, "(RFC822)")
-    for response in msg_data:
-        if isinstance(response, tuple):
-            msg = email.message_from_bytes(response[1])
-            sender = msg.get("From")
-            subject, encoding = decode_header(msg["Subject"])[0]
-            subject = subject.decode(encoding or "utf-8") if isinstance(subject, bytes) else subject
+    logging.info("Starting email processing.")
+    
+    if not mail:
+        logging.error("Failed to connect to IMAP server. Exiting.")
+        return
 
-            user_email = extract_email(sender)
-            print(f"📨 Processing email from: {user_email}")
+    try:
+        logging.info("Checking for unread emails...")
+        email_ids = get_unread_emails(mail)
+        logging.info(f"Found {len(email_ids)} unread emails.")
 
-            # Extract time of receipt
-            received_time = msg.get("Date")
-            if received_time:
-                received_time = parsedate_to_datetime(received_time).strftime('%Y-%m-%d %H:%M:%S')
-            else:
-                received_time = "Unknown Time"
+        for response in msg_data:
+            if isinstance(response, tuple):
+                msg = email.message_from_bytes(response[1])
+                sender = msg.get("From")
+                subject, encoding = decode_header(msg["Subject"])[0]
+                subject = subject.decode(encoding or "utf-8") if isinstance(subject, bytes) else subject
 
-            # Process attachments but only update history if attachments exist
-            has_attachment, user_history_count = process_attachments(msg, user_email)
+                user_email = extract_email(sender)
+                print(f"📨 Processing email from: {user_email}")
 
-            message_id = msg.get("Message-ID")  # ✅ Extract the original Message-ID
-            return user_email, subject, received_time, has_attachment, user_history_count, message_id
+                # Extract time of receipt
+                received_time = msg.get("Date")
+                if received_time:
+                    received_time = parsedate_to_datetime(received_time).strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    received_time = "Unknown Time"
+
+                # Process attachments but only update history if attachments exist
+                has_attachment, user_history_count = process_attachments(msg, user_email)
+
+                message_id = msg.get("Message-ID")  # ✅ Extract the original Message-ID
+                return user_email, subject, received_time, has_attachment, user_history_count, message_id
+        
+    except Exception as e:
+        logging.error(f"An error occurred during email processing: {e}")
+        if mail:
+            try:
+                mail.logout()
+            except:
+                pass
 
     return None, None, None, None, None, None
 
