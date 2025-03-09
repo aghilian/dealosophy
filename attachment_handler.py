@@ -17,16 +17,18 @@ def get_next_email_folder(user_email):
     sender_folder = os.path.join(USER_FOLDER_PATH, user_email)
 
     if not os.path.exists(sender_folder):
-        os.makedirs(sender_folder)
+        os.makedirs(sender_folder, exist_ok=True)
 
     # Find existing numeric folders
     existing_folders = [int(folder) for folder in os.listdir(sender_folder) if folder.isdigit()]
     next_number = max(existing_folders, default=0) + 1
 
     email_folder = os.path.join(sender_folder, str(next_number), "attachments")
+    
+    # ✅ FIX: Ensure the directory exists before returning it
     os.makedirs(email_folder, exist_ok=True)
 
-    return email_folder, next_number  # ✅ Ensures two values are returned
+    return email_folder, next_number
 
 def process_attachments(msg, user_email):
     """Extracts and processes attachments. Only creates a folder and updates history if attachments exist."""
