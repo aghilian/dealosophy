@@ -78,8 +78,6 @@ def process_all_emails():
 
     for email_id in email_ids:
         user_email, subject, received_time, has_attachment, user_history_count, message_id = parse_email(mail, email_id)
-
-
         if not user_email:
             print(f"⚠ Skipping email ID {email_id}, missing sender.")
             continue
@@ -88,12 +86,6 @@ def process_all_emails():
 
         # Send acknowledgment email with subject and time
         send_acknowledgment(user_email, subject, received_time, has_attachment, message_id)
-
-# # Change from:
-# if has_attachment:
-#     import subprocess
-#     subprocess.run(["python", "extract_data.py", user_email, str(user_history_count)])
-
         
         # ✅ Call extract_data.py if the email has attachments
         if has_attachment:

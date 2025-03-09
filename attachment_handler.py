@@ -5,28 +5,25 @@ from config import USER_FOLDER_PATH
 def get_user_email_history(user_email):
     """Gets the count of emails with attachments by counting numeric subfolders."""
     sender_folder = os.path.join(USER_FOLDER_PATH, user_email)
-
-    if not os.path.exists(sender_folder):
-        return 0  # No previous emails with attachments
+    
+    os.makedirs(sender_folder, exist_ok=True)  # ✅ Ensures the directory exists
 
     existing_folders = [folder for folder in os.listdir(sender_folder) if folder.isdigit()]
     return len(existing_folders)
 
 def get_next_email_folder(user_email):
-    """Determines the next numbered folder for the sender, but only if there are attachments."""
+    """Determines the next numbered folder for the sender and ensures all directories exist."""
     sender_folder = os.path.join(USER_FOLDER_PATH, user_email)
-
-    if not os.path.exists(sender_folder):
-        os.makedirs(sender_folder, exist_ok=True)
+    
+    os.makedirs(sender_folder, exist_ok=True)  # ✅ Ensures the user folder exists
 
     # Find existing numeric folders
     existing_folders = [int(folder) for folder in os.listdir(sender_folder) if folder.isdigit()]
     next_number = max(existing_folders, default=0) + 1
 
     email_folder = os.path.join(sender_folder, str(next_number), "attachments")
-    
-    # ✅ FIX: Ensure the directory exists before returning it
-    os.makedirs(email_folder, exist_ok=True)
+
+    os.makedirs(email_folder, exist_ok=True)  # ✅ Ensures the attachment folder exists
 
     return email_folder, next_number
 
