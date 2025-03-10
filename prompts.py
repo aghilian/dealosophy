@@ -159,6 +159,7 @@ CASH_FLOW_STATEMENT_PROMPT = """
         objects, add few empty strings to bring the legnth of the array to
         the fixed length that we expect for all arrays.
 """
+
 ADJUSTMENTS_PROMPT = """
         Analyze the file and carefully look for a financial table that
         maybe titled EBITDA Normalization or EBITDA Adjustments or Addbacks or
@@ -215,7 +216,6 @@ ADJUSTMENTS_PROMPT = """
         objects, add few empty strings to bring the legnth of the array to
         the fixed length that we expect for all arrays.
 """
-
 
 COMPANY_INFO_PROMPT = """
 Extract the following information in this exact order about the company 

@@ -10,8 +10,8 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-CREDENTIALS_PATH = "/iman/dealosophy/credentials.json"  # Update with your path
-TOKEN_PATH = "/iman/dealosophy/token.json"  # Update with your path
+CREDENTIALS_PATH = "/home/iman/dealosophy/credentials.json"  # Use absolute path
+TOKEN_PATH = "/home/iman/dealosophy/token.json"  # Use absolute path
 
 def get_gmail_service():
     creds = None
@@ -60,7 +60,7 @@ def send_message(service, user_id, message):
         logging.error(f"An error occurred: {e}")
         return None
 
-def send_acknowledgment(user_email, subject, received_time, has_attachment, original_msg_id=None):
+def send_acknowledgment(user_email, subject, has_attachment, original_msg_id=None):
     """Sends an acknowledgment email using the Gmail API."""
     try:
         service = get_gmail_service()

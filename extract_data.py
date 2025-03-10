@@ -30,9 +30,9 @@ print("✝️ extract_data received from email_fetcher.py", user_email, user_his
 
 
 # ✅ Define relative paths
-attachments_folder = os.path.join("users", user_email, user_history_count, "attachments")
-json_folder = os.path.join("users", user_email, user_history_count, "json_files")
-location_folder = os.path.join("users", user_email, user_history_count, "locations")
+attachments_folder = os.path.join("/home/iman/dealosophy/users", user_email, user_history_count, "attachments")
+json_folder = os.path.join("/home/iman/dealosophy/users", user_email, user_history_count, "json_files")
+location_folder = os.path.join("/home/iman/dealosophy/users", user_email, user_history_count, "locations")
 
 # ✅ Ensure required directories exist
 os.makedirs(json_folder, exist_ok=True)
