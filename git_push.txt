@@ -1,3 +1,13 @@
 git add .
 git commit -m "Describe your changes here"
 git push
+
+git checkout main
+git pull origin main
+
+# log in to server
+ssh -i c:\dealosophy\ssh\id_03082025 iman@165.227.45.200
+cd ~/dealosophy
+source venv/bin/activate
+
+
