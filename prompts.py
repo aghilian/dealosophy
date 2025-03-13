@@ -260,3 +260,45 @@ Brokerage firm, Broker Agent, Broker agent phone number, broker agent email.
 }    
 """
 
+SUMMARY_PROMPT = """
+Extract a summarized version of the income statement and balance sheet as JSON including only these line items:
+years, revenue, cogs, gross margin, operating expenses, ebit, interest paid, taxes, net income, sde;
+cash, accounts receivable, inventory, current assets, accounts payable, current liabilities, total assets, total liabilities, total equity;
+number of employees.
+The first dictionary is "Years" as key and values being an array of years for which data is reported. 
+The number of years available sets the fixed length of all the following arrays.
+The second and all the proceeding keys will be the account or line items reported.
+Only extract these entries and do not extract any other data. 
+If a value does not exist, use 0 as a placeholder. 
+Do not put any explanation, only output the raw JSON output. 
+Do not prefix with any text such as 'json' or put any quotations around the values.
+The final results should look like this, yet with the right values: 
+
+{
+    "Years" : [number, number, number],
+    "Revenue" : [number, number, number],
+    "COGS" : [number, number, number],
+    "Gross Margin" : [number, number, number],
+    "Operating Expenses" : [number, number, number],
+    "EBIT" : [number, number, number],
+    "Interest Paid" : [number, number, number],
+    "Taxes" : [number, number, number],
+    "Net Income" : [number, number, number],
+    "SDE" [number, number, number]:
+    "Cash" : [number, number, number],
+    "Accounts Receivable" : [number, number, number],
+    "Inventory" : [number, number, number],
+    "Current Assets" : [number, number, number],
+    "Accounts Payable" : [number, number, number],
+    "Current Liabilities" : [number, number, number], 
+    "Total Liabilites" : [number, number, number],
+    "Total Assets" : [number, number, number],
+    "Total Equity" : [number, number, number],
+    "Number of Employees" : [number, number, number],
+}
+
+For these items, the line item maybe a category header with no values. You might have to add up the sub-category items to arrive at the total value:
+COGS, Operating Expenses, Current Assets, Current Liabilities, Total Equity, Total Assets, Total Liabilites
+
+Return only a valid josn.
+"""

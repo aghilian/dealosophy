@@ -44,22 +44,23 @@ def create_message(sender, to, subject, message_text, in_reply_to=None, referenc
     message.set_content(message_text)
 
     if in_reply_to:
-        message['In-Reply-To'] = in_reply_to
-    if references:
-        message['References'] = references
-
+        message['In-Reply-To'] = f'<{in_reply_to}>'
+        message['References'] = f'<{in_reply_to}>'
     raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
     return {'raw': raw}
 
-def send_message(service, user_id, message):
+def send_message(service, user_id, message, thread_id=None):
     try:
-        message = (service.users().messages().send(userId=user_id, body=message).execute())
+        if thread_id:
+            message = (service.users().messages().send(userId=user_id, body=message, threadId=thread_id).execute())
+        else:
+            message = (service.users().messages().send(userId=user_id, body=message).execute())
         logging.info(f"Message Id: {message['id']}")
         return message
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None
-
+    
 def send_acknowledgment(user_email, subject, has_attachment, original_msg_id=None):
     """Sends an acknowledgment email using the Gmail API."""
     try:
@@ -76,14 +77,32 @@ def send_acknowledgment(user_email, subject, has_attachment, original_msg_id=Non
         else:
             message_text = f"""Hi,\n\nWe received an email from you but couldn't find any attachments.\n\nBest,\nDealosophy"""
 
-        message = create_message(sender, user_email, subject, message_text, original_msg_id, original_msg_id)
-        send_message(service, "me", message)
+        message = create_message(sender, user_email, subject, message_text, in_reply_to=original_msg_id, references=original_msg_id)
 
-        logging.info(f"✅ Acknowledgment email successfully sent to {user_email}")
         if original_msg_id:
+            # Get the thread ID for the original message
+            # Ensure original_msg_id is a valid format (Gmail message ID)
+            if original_msg_id and original_msg_id.strip():
+                try:
+                    thread_info = service.users().messages().get(userId="me", id=original_msg_id, fields='threadId').execute()
+                    thread_id = thread_info.get('threadId', None)
+                    if thread_id:
+                        send_message(service, "me", message, thread_id)
+                        logging.info(f"✅ Email sent as a reply to Message-ID: {original_msg_id}")
+                    else:
+                        logging.warning(f"⚠️ Warning: Could not retrieve thread ID for Message-ID: {original_msg_id}, sending as a new email.")
+                        send_message(service, "me", message)
+                except Exception as e:
+                    logging.error(f"❌ ERROR: Failed to retrieve thread ID for Message-ID {original_msg_id}: {e}")
+                    send_message(service, "me", message)
+            else:
+                logging.warning("⚠️ Warning: Invalid or missing Message-ID, sending email as a new message.")
+                send_message(service, "me", message)
+
             logging.info(f"✅ Email sent as a reply to Message-ID: {original_msg_id}")
         else:
-            logging.warning("⚠️ Warning: Email sent as a new message (no original Message-ID provided)")
+            send_message(service, "me", message)
+            logging.warning("⚠️ Warning: Email sent as a new message (no original Message-ID provided)")     
 
     except Exception as e:
         logging.error(f"❌ ERROR: Failed to send acknowledgment email to {user_email}: {e}")

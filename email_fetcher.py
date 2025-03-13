@@ -4,8 +4,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import os
 import email
-from email.header import decode_header
-from email.utils import parsedate_to_datetime, parseaddr
+from email.utils import parseaddr
 import re
 import subprocess
 import logging
@@ -20,47 +19,7 @@ TOKEN_PATH = "/home/iman/dealosophy/token.json"  # Use absolute path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# keep a file of all processed emails
-
-PROCESSED_EMAILS_FILE = "processed_emails.txt"
-
-def load_processed_emails():
-    """Loads processed email IDs from the file."""
-    processed_emails = set()
-    if os.path.exists(PROCESSED_EMAILS_FILE):
-        with open(PROCESSED_EMAILS_FILE, "r") as f:
-            for line in f:
-                email_id = line.strip()
-                if email_id:
-                    processed_emails.add(email_id)
-    return processed_emails
-
-def save_processed_emails(processed_emails):
-    """Saves processed email IDs to the file."""
-    with open(PROCESSED_EMAILS_FILE, "w") as f:
-        for email_id in processed_emails:
-            f.write(f"{email_id}\n")
-
-# only for registered users
-def send_welcome_email(recipient_email):
-    """Sends a welcome and onboarding email."""
-    subject = "Welcome to Dealosophy!"
-    message_text = """
-    Welcome to Dealosophy! We're excited to have you on board.
-    Here's how to get started...
-    """
-    #send_email(recipient_email, subject, message_text)  # You'll need to create this function
-
-def send_waitlist_email(recipient_email):
-    """Sends a waitlist email."""
-    subject = "You're on the Dealosophy Waitlist"
-    message_text = """
-    Your email has been added to the wait list for Dealosophy.
-    As we welcome new users, we will inform you to hop on board.
-    """
-    #send_email(recipientemail, subject, message_text)  # You'll need to create this function            
-    
+      
 def get_gmail_service():
     creds = None
     if os.path.exists(TOKEN_PATH):
@@ -119,6 +78,18 @@ def mark_as_read(service, user_id, msg_id):
         time.sleep(1)
     except Exception as e:
         logging.error(f"❌ ERROR: Failed to mark email ID {msg_id} as read: {e}")
+
+# load the list of registered users
+def load_registered_users():
+    """Loads registered user emails from a file."""
+    registered_users = set()
+    if os.path.exists("registered_users.txt"):
+        with open("registered_users.txt", "r") as f:
+            for line in f:
+                email_address = line.strip().lower()
+                if email_address:
+                    registered_users.add(email_address)
+    return registered_users
         
 # Rest of your functions (process_attachments, send_acknowledgment) remain the same
 
@@ -134,19 +105,13 @@ def process_all_emails():
         return
 
     logging.info(f"📧 Found {len(messages)} unread emails.")
-
-    processed_emails = load_processed_emails()
-
+    
     for message in messages:
         msg = service.users().messages().get(userId='me', id=message['id'], format='raw').execute()
         msg_str = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
         mime_msg = email.message_from_bytes(msg_str)
 
         message_id = message['id']
-
-        if message_id in processed_emails:
-            logging.info(f"Email ID {message_id} already processed. Skipping.")
-            continue
 
         try:
             parsed_email = {
@@ -159,7 +124,13 @@ def process_all_emails():
             sender_email = parseaddr(parsed_email["from"])[1]
             subject = parsed_email["subject"]
             message_id = parsed_email["message_id"]
-
+            
+            registered_users = load_registered_users()
+            
+            if sender_email.lower() not in registered_users:
+                logging.info(f"⛔ Skipping email from unregistered user: {sender_email}")
+                continue
+            
             logging.info(f"📨 Processing email from: {sender_email}")
 
             user_history_count = 0  # Initialize user_history_count
@@ -175,9 +146,6 @@ def process_all_emails():
                 subprocess.run(["python3", "extract_data.py", sender_email, str(user_history_count), message_id_reply, subject])
                 logging.info(f"🚣‍♀️ Message info sent to extract_data.py {sender_email} {user_history_count} {message_id_reply} {subject}")
             mark_as_read(service, 'me', message['id'])
-
-            processed_emails.add(message_id)
-            save_processed_emails(processed_emails)
 
         except Exception as e:
             logging.error(f"⚠ Skipping email ID {message_id}, could not retrieve email. Error: {e}")

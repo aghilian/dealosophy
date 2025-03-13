@@ -45,9 +45,8 @@ def create_message_with_attachment(sender, to, subject, message_text, file_path,
     message.set_content(message_text)
 
     if in_reply_to:
-        message['In-Reply-To'] = in_reply_to
-    if references:
-        message['References'] = references
+        message['In-Reply-To'] = f'<{in_reply_to}>'
+        message['References'] = f'<{in_reply_to}>'
 
     try:
         with open(file_path, "rb") as f:
@@ -61,9 +60,12 @@ def create_message_with_attachment(sender, to, subject, message_text, file_path,
     raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
     return {'raw': raw}
 
-def send_message(service, user_id, message):
+def send_message(service, user_id, message, thread_id=None):
     try:
-        message = (service.users().messages().send(userId=user_id, body=message).execute())
+        if thread_id:
+            message = (service.users().messages().send(userId=user_id, body=message, threadId=thread_id).execute())
+        else:
+            message = (service.users().messages().send(userId=user_id, body=message).execute())
         logging.info(f"Message Id: {message['id']}")
         return message
     except Exception as e:
@@ -99,10 +101,12 @@ def main():
         message = create_message_with_attachment(sender, user_email, subject, message_text, target_excel, message_id, message_id)
 
         if message:
-            send_message(service, "me", message)
-
             if message_id:
                 print(f"✅ Email successfully sent to {user_email} as a reply with attachment {os.path.basename(target_excel)}")
+                # Get the thread ID for the original message
+                thread_info = service.users().messages().get(userId="me", id=message_id, fields='threadId').execute()
+                thread_id = thread_info['threadId']
+                send_message(service, "me", message, thread_id)
             else:
                 print(f"✅ Email successfully sent to {user_email} with attachment {os.path.basename(target_excel)} (not as a reply)")
 

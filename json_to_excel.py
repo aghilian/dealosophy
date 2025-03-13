@@ -110,8 +110,21 @@ excel_folder = os.path.join("users", user_email, user_history_count, "excel_file
 # ✅ Ensure output folder exists
 os.makedirs(excel_folder, exist_ok=True)
 
-# ✅ Get all JSON files in the folder
-json_files = [f for f in os.listdir(json_folder) if f.endswith(".json")]
+# ✅ Define the desired order of JSON files
+json_order = [
+    "summary.json",
+    "income_statement.json",
+    "adjustments.json",
+    "balance_sheet.json",
+    "company_info.json",
+    "analysis.json",
+]
+
+# ✅ Get all existing JSON files in the folder
+existing_json_files = {f for f in os.listdir(json_folder) if f.endswith(".json")}
+
+# ✅ Filter and order JSON files according to the predefined order
+json_files = [f for f in json_order if f in existing_json_files]
 
 if not json_files:
     print(f"❌ ERROR: No JSON files found in {json_folder}")

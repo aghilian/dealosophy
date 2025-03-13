@@ -4,6 +4,7 @@ import re
 import sys
 import os
 import subprocess
+from financial_analysis import calculate_financial_metrics
 from prompts import *
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -242,9 +243,27 @@ extract_and_save(BALANCE_SHEET_PROMPT, "balance_sheet.json")
 # # Extract Adjustments
 extract_and_save(ADJUSTMENTS_PROMPT, "adjustmentst.json")
 
+# # Extract Summary
+extract_and_save(SUMMARY_PROMPT, "summary.json")
+
 # Extract Cash Flow Statement
 #extract_and_save(CASH_FLOW_STATEMENT_PROMPT, "cash_flow_statement.json")
 
+# Financial Analysis Integration
+summary_file_path = os.path.join(json_folder, "summary.json")
+analysis_file_path = os.path.join(json_folder, "analysis.json")
+
+try:
+    with open(summary_file_path, "r") as f:
+        summary_data = json.load(f)
+    analysis_results = calculate_financial_metrics(summary_data)
+    with open(analysis_file_path, "w") as outfile:
+        json.dump(analysis_results, outfile, indent=4)
+    print(f"Financial analysis results written to {analysis_file_path}")
+except FileNotFoundError:
+    print(f"Error: {summary_file_path} not found.")
+except json.JSONDecodeError:
+    print(f"Error: Invalid JSON format in {summary_file_path}.")
 
 # Delete the assistant:
 response = client.beta.assistants.delete(assistant.id)
