@@ -19,6 +19,7 @@ Thumbs.db
 .env
 config.py
 
-# Ignore sensitive files
-wood.pdf  # If this is a private file, keep it ignored
-
+# Ignore PDFS and jsons and texts
+*.pdf
+*.json
+*.txt 
