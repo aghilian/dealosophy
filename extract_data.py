@@ -128,7 +128,7 @@ def extract_and_save(client, assistant_id, thread_id, prompt, filename):
     # Wait for the assistant to complete the run
     while run.status not in ["completed", "failed", "cancelled"]:
         print(f"Waiting for completion... Current status: {run.status}")
-        time.sleep(5)
+        time.sleep(3) # Wait for 3 seconds before checking again
         run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
 
     # Now fetch messages
