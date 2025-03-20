@@ -223,7 +223,7 @@ ADJUSTMENTS_PROMPT = """
 SUMMARY_PROMPT = """
 Extract a summarized version of the income statement and balance sheet as JSON including only these line items:
 years, revenue, cogs, gross margin, operating expenses, ebit (earnings before interest and tax), interest paid, taxes, net income (ebit - interest paid - taxes), sde (seller's discretionary earnings),;
-cash, accounts receivable, inventory, current assets, accounts payable, current liabilities, total assets, total liabilities, total equity;
+cash, accounts receivable, inventory, current assets, accounts payable, current liabilities, total assets, total liabilities, total shareholder's equity;
 number of employees.
 The first dictionary is "Years" as key and values being an array of years for which data is reported. 
 The number of years available sets the fixed length of all the following arrays.
@@ -232,7 +232,7 @@ Only extract these entries and do not extract any other data.
 The values may have commas in them, remove the commas and convert them to numbers.
 If a value does not exist, try to calculate it from what's given, for example: 
 if you have current assets and current liabilities, you can calculate total assets. 
-if you have total assets and total liabilities, you can calculate total equity.
+if you have total assets and total liabilities, you can calculate total shareholder's equity.
 if you have ebit, interest paid, and taxes, you can calculate net income.
 if you have net income, addbacks, and owner's salary, you can calculate sde.
 if you have cash, accounts receivable, and inventory, you can calculate current assets.
@@ -251,21 +251,21 @@ The final results should look like this, yet with the right values:
     "Interest Paid" : [number, number, number],
     "Taxes" : [number, number, number],
     "Net Income" : [number, number, number],
-    "SDE" [number, number, number]:
+    "SDE" : [number, number, number],
+    "Number of Employees" : [number, number, number],
     "Cash" : [number, number, number],
     "Accounts Receivable" : [number, number, number],
     "Inventory" : [number, number, number],
     "Current Assets" : [number, number, number],
+    "Total Assets" : [number, number, number],
     "Accounts Payable" : [number, number, number],
     "Current Liabilities" : [number, number, number], 
     "Total Liabilites" : [number, number, number],
-    "Total Assets" : [number, number, number],
-    "Total Equity" : [number, number, number],
-    "Number of Employees" : [number, number, number],
+    "Total Shareholders' Equity" : [number, number, number]
 }
 
 For these items, the line item maybe a category header with no values. You might have to add up the sub-category items to arrive at the total value:
-COGS, Operating Expenses, Current Assets, Current Liabilities, Total Equity, Total Assets, Total Liabilites
+COGS, Operating Expenses, Current Assets, Current Liabilities, Total Shareholders' Equity, Total Assets, Total Liabilites
 
 Return only a valid josn.
 """

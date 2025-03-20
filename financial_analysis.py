@@ -1,5 +1,4 @@
 import json
-import math
 import os
 import logging
 from uncertainties import ufloat
@@ -15,20 +14,24 @@ def format_value(value, is_percentage=False):
     - Comma separators for thousands
     """
     try:
-        if not isinstance(value, (int, float)):
+        if not isinstance(value, (int, float)) or value == "":
             return ""
         
         # Round to appropriate decimal places
-        if abs(value) >= 100:
-            formatted = f"{value:,.0f}"  # Add comma separator with no decimals
-        elif abs(value) >= 10:
-            formatted = f"{value:,.1f}"  # Add comma separator with 1 decimal
-        else:
-            formatted = f"{value:,.2f}"  # Add comma separator with 2 decimals
-        
-        # Format as percentage if required
         if is_percentage:
-            return f"{formatted}%"
+            if abs(value) >= 100:
+                formatted = f"{value:.0f}%"  # No decimals for large percentages
+            elif abs(value) >= 10:
+                formatted = f"{value:.1f}%"  # 1 decimal for medium percentages
+            else:
+                formatted = f"{value:.2f}%"  # 2 decimals for small percentages
+        else:
+            if abs(value) >= 100:
+                formatted = f"{value:,.0f}"  # Add comma separator with no decimals
+            elif abs(value) >= 10:
+                formatted = f"{value:,.1f}"  # Add comma separator with 1 decimal
+            else:
+                formatted = f"{value:,.2f}"  # Add comma separator with 2 decimals
         
         return formatted
     except Exception as e:
@@ -38,10 +41,28 @@ def format_value(value, is_percentage=False):
 def calculate_financial_metrics(summary_data):
     """Calculates financial metrics from summary data."""
     try:
-        years = summary_data["Years"]
+        # Sort years in ascending order
+        years = sorted(summary_data["Years"])
         num_years = len(years)
         results = {"Years": years}
         logging.info(f"Processing {num_years} years of data: {years}")
+        
+        # Add Non-current Assets and Long-term Liabilities calculations
+        summary_data["Non-current Assets"] = []
+        summary_data["Long-term Liabilities"] = []
+        
+        for i in range(num_years):
+            # Calculate Non-current Assets
+            current_assets = float(summary_data["Current Assets"][i]) if summary_data["Current Assets"][i] not in ["", None] else 0
+            total_assets = float(summary_data["Total Assets"][i]) if summary_data["Total Assets"][i] not in ["", None] else 0
+            non_current_assets = total_assets - current_assets if total_assets != 0 else ""
+            summary_data["Non-current Assets"].append(non_current_assets)
+            
+            # Calculate Long-term Liabilities
+            current_liabilities = float(summary_data["Current Liabilities"][i]) if summary_data["Current Liabilities"][i] not in ["", None] else 0
+            total_liabilities = float(summary_data["Total Liabilities"][i]) if summary_data["Total Liabilities"][i] not in ["", None] else 0
+            long_term_liabilities = total_liabilities - current_liabilities if total_liabilities != 0 else ""
+            summary_data["Long-term Liabilities"].append(long_term_liabilities)
         
         # Log the raw input data
         logging.info(f"Input summary data: {json.dumps(summary_data, indent=2)}")
@@ -78,7 +99,7 @@ def calculate_financial_metrics(summary_data):
             "Current Liabilities": get_values("Current Liabilities"),
             "Total Liabilities": get_values("Total Liabilities"),  # Fixed typo here
             "Total Assets": get_values("Total Assets"),
-            "Total Equity": get_values("Total Equity"),
+            "Total Shareholders' Equity": get_values("Total Shareholders' Equity"),
             "Number of Employees": get_values("Number of Employees"),
             "SDE": get_values("SDE")
         }
@@ -187,13 +208,13 @@ def calculate_financial_metrics(summary_data):
                 # Debt-to-Equity Ratio
                 safe_calculate(
                     "Debt-to-Equity Ratio",
-                    lambda: (metrics["Total Liabilities"][i] / metrics["Total Equity"][i]) if isinstance(metrics["Total Liabilities"][i], (int, float)) and isinstance(metrics["Total Equity"][i], (int, float)) and metrics["Total Equity"][i] != 0 else None
+                    lambda: (metrics["Total Liabilities"][i] / metrics["Total Shareholders' Equity"][i]) if isinstance(metrics["Total Liabilities"][i], (int, float)) and isinstance(metrics["Total Shareholders' Equity"][i], (int, float)) and metrics["Total Shareholders' Equity"][i] != 0 else None
                 )
 
                 # Return on Equity (ROE)
                 safe_calculate(
                     "Return on Equity (ROE)",
-                    lambda: ((metrics["Net Income"][i] / metrics["Total Equity"][i]) * 100) if isinstance(metrics["Net Income"][i], (int, float)) and isinstance(metrics["Total Equity"][i], (int, float)) and metrics["Total Equity"][i] != 0 else None,
+                    lambda: ((metrics["Net Income"][i] / metrics["Total Shareholders' Equity"][i]) * 100) if isinstance(metrics["Net Income"][i], (int, float)) and isinstance(metrics["Total Shareholders' Equity"][i], (int, float)) and metrics["Total Shareholders' Equity"][i] != 0 else None,
                     True
                 )
 

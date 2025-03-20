@@ -8,6 +8,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from config import BASE_DIR
 from financial_analysis import analyze_json_file
+from vertical_analysis import analyze_vertical
 load_dotenv()
 
 def setup_openai_resources(file_paths):
@@ -46,67 +47,6 @@ def setup_openai_resources(file_paths):
     # Return the resources needed for other functions
     return client, assistant.id, thread.id, vector_store.id
 
-# def check_data_existence(prompt, filenames, data_type):
-#     """
-#     Optimized version: Queries OpenAI **once** for all files instead of looping.
-#     Saves a JSON file containing filenames and page numbers where data is found.
-#     """
-#     # Query OpenAI Assistant for all files in one go
-#     message = client.beta.threads.messages.create(
-#         thread_id=thread.id,
-#         role='user',
-#         content=prompt
-#     )
-
-#     run = client.beta.threads.runs.create(
-#         assistant_id=assistant.id,
-#         thread_id=thread.id
-#     )
-
-#     while run.status not in ["completed", "failed", "cancelled"]:
-#         print(f"Waiting for completion... Current status: {run.status}")
-#         time.sleep(5)
-#         run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
-
-#     # Fetch the latest assistant response
-#     messages = client.beta.threads.messages.list(thread_id=thread.id, order='desc', limit=1)
-
-#     assistant_response = None
-#     for message in messages:
-#         if message.role == "assistant" and hasattr(message, "content") and message.content:
-#             assistant_response = message.content[0].text.value
-#             break  # Only process the first valid response
-
-#     print("Raw Assistant Response:", assistant_response)
-
-#     data_locations = {}  # Default empty dict
-
-#     if assistant_response:
-#         try:
-#             # Clean JSON response
-#             cleaned_response = assistant_response.strip().strip("```json").strip("```").strip()
-#             data_locations = json.loads(cleaned_response)  # Directly use parsed response!
-
-#         except json.JSONDecodeError:
-#             print("Invalid JSON response received. Skipping processing...")
-
-#     # Debugging: Check data before saving
-#     print("Data locations before saving:", data_locations)
-
-#     # Save JSON file if data was found, otherwise return "Not Found"
-#     output_file = os.path.join(location_folder, f"location_{data_type.lower().replace(' ', '_')}.json")
-
-#     if data_locations:
-#         with open(output_file, "w") as f:
-#             json.dump(data_locations, f, indent=4)
-#         print(f"{data_type} locations saved to {output_file}")
-#         return data_locations
-#     else:
-#         print(f"No relevant {data_type} data found. Saving 'Not Found' response.")
-#         not_found_result = {"Not Found": data_type}
-#         with open(output_file, "w") as f:
-#             json.dump(not_found_result, f, indent=4)
-#         return not_found_result
 
 def extract_and_save(client, assistant_id, thread_id, prompt, filename):
     """Function to extract financial data and save as JSON"""
@@ -238,7 +178,7 @@ def extractor(sender_email, folder_count, message_id_reply):
     extract_and_save(client, assistant_id, thread_id, BALANCE_SHEET_PROMPT, os.path.join(json_folder, "balance_sheet.json"))
 
     # # Extract Adjustments
-    extract_and_save(client, assistant_id, thread_id, ADJUSTMENTS_PROMPT, os.path.join(json_folder, "adjustmentst.json"))
+    extract_and_save(client, assistant_id, thread_id, ADJUSTMENTS_PROMPT, os.path.join(json_folder, "adjustments.json"))
 
     # # Extract Summary
     extract_and_save(client, assistant_id, thread_id, SUMMARY_PROMPT, os.path.join(json_folder, "summary.json"))
@@ -248,7 +188,12 @@ def extractor(sender_email, folder_count, message_id_reply):
     if os.path.exists(summary_path):
         print(f"✅ Found summary.json file at: {summary_path}")
         # Analyze the file
-        return analyze_json_file(summary_path)
+        financial_analysis_result = analyze_json_file(summary_path)
+        
+        # Perform vertical analysis on the same folder
+        vertical_analysis_result = analyze_vertical(json_folder)
+        
+        return financial_analysis_result
     else:
         print(f"❌ summary.json not found in: {json_folder}")
         return None

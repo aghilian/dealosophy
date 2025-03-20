@@ -71,6 +71,9 @@ def format_excel(ws, current_file=None):
                          bottom=Side(style='thin', color="D3D3D3"))
     fill_color = PatternFill(start_color="D9EAD3", end_color="D9EAD3", fill_type="solid")
 
+    # Get the sheet name
+    sheet_name = ws.title
+
     # Format headers
     for cell in ws[1]:
         cell.font = header_font
@@ -84,18 +87,49 @@ def format_excel(ws, current_file=None):
             cell.font = body_font
             cell.border = border_style
             
-            # First column (Metric names) always left aligned
-            if cell.column == 1:
-                cell.alignment = left_aligned_text
-            else:
-                # For data columns, right align if it's a number or percentage
-                if cell.value and isinstance(cell.value, str):
-                    if any(c.isdigit() for c in cell.value):
-                        cell.alignment = right_aligned_text
-                    else:
-                        cell.alignment = left_aligned_text
+            # Special formatting for Company Info sheet
+            if sheet_name == "Company Info":
+                if cell.column == 1:  # First column (Field names)
+                    cell.alignment = left_aligned_text
+                elif cell.column == 2:  # Second column (Values)
+                    cell.alignment = left_aligned_text
                 else:
-                    cell.alignment = right_aligned_text
+                    cell.alignment = center_aligned_text
+            # Special formatting for Summary Vertical sheet
+            elif sheet_name == "Summary Vertical":
+                if cell.column == 1:  # First column (Metric names)
+                    cell.alignment = left_aligned_text
+                else:  # Data columns
+                    # Special handling for blank row
+                    if cell.row > 1 and ws.cell(row=cell.row, column=1).value == "":
+                        cell.alignment = center_aligned_text
+                        cell.value = ""  # Ensure empty value
+                    elif cell.value and isinstance(cell.value, str):
+                        if any(c.isdigit() for c in cell.value):
+                            cell.alignment = right_aligned_text
+                            # Format percentage values to have one decimal place
+                            if '%' in cell.value:
+                                try:
+                                    value = float(cell.value.strip('%'))
+                                    cell.value = f"{value:.1f}%"
+                                except ValueError:
+                                    pass
+                        else:
+                            cell.alignment = left_aligned_text
+                    else:
+                        cell.alignment = right_aligned_text
+            # Default formatting for other sheets
+            else:
+                if cell.column == 1:  # First column (Metric names)
+                    cell.alignment = left_aligned_text
+                else:  # Data columns
+                    if cell.value and isinstance(cell.value, str):
+                        if any(c.isdigit() for c in cell.value):
+                            cell.alignment = right_aligned_text
+                        else:
+                            cell.alignment = left_aligned_text
+                    else:
+                        cell.alignment = right_aligned_text
 
     # Adjust column widths
     for col in range(1, ws.max_column + 1):
@@ -127,8 +161,9 @@ def create_excel_file(CURRENT_PATH):
     # Define the desired order of sheets
     desired_order = [
         "summary.json",
+        "summary_vertical.json",
         "analysis.json",
-        "income_statement.json",
+        "income_statement.json",        
         "adjustments.json",
         "balance_sheet.json",
         "company_info.json"
@@ -181,9 +216,17 @@ def create_excel_file(CURRENT_PATH):
 
                 # ✅ Handle Specific Formatting
                 if "Years" in df.columns:
+                    # Store the original years order
+                    years = df["Years"].tolist()
+                    
+                    # Set index and transpose
                     df = df.set_index("Years").transpose()
-                    df = df[sorted(df.columns)]  
-                    df.insert(0, "Metric", df.index)  
+                    
+                    # Sort columns in ascending order (oldest to newest)
+                    df = df[sorted(df.columns)]
+                    
+                    # Add Metric column and reset index
+                    df.insert(0, "Metric", df.index)
                     df.reset_index(drop=True, inplace=True)
 
                     # Convert string percentages and numbers to float
@@ -192,7 +235,7 @@ def create_excel_file(CURRENT_PATH):
                             float(str(x).strip('%')) if isinstance(x, str) and '%' in x 
                             else float(str(x).replace(',', '')) if isinstance(x, (str)) and ',' in str(x)
                             else float(x) if isinstance(x, (int, float, str)) and str(x).strip() not in ['', 'nan']
-                            else 0
+                            else None  # Changed from 0 to None for empty values
                         )
 
                     # Format numbers based on the metric type
@@ -200,17 +243,33 @@ def create_excel_file(CURRENT_PATH):
                         metric = row['Metric']
                         for col in df.columns[1:]:
                             value = row[col]
-                            if isinstance(value, (int, float)):
-                                if 'Ratio' in metric or 'multiple' in metric:
-                                    df.at[idx, col] = f"{value:.2f}"
+                            if pd.isna(value):  # Handle None/NaN values
+                                df.loc[idx, col] = ""
+                            elif isinstance(value, (int, float)):
+                                if json_file == "summary_vertical.json":
+                                    # For summary vertical, preserve the exact formatting
+                                    if metric == "":  # Handle blank row
+                                        df.loc[idx, col] = ""
+                                    else:
+                                        df.loc[idx, col] = f"{value:.1f}%"
+                                elif 'Ratio' in metric or 'multiple' in metric:
+                                    df.loc[idx, col] = f"{value:.2f}"
                                 elif '%' in metric:
-                                    df.at[idx, col] = f"{value:.1f}%"
+                                    df.loc[idx, col] = f"{value:.1f}%"
                                 elif 'Days' in metric:
-                                    df.at[idx, col] = f"{value:.1f}"
+                                    df.loc[idx, col] = f"{value:.1f}"
                                 elif 'per employee ($)' in metric or 'Revenue' in metric or 'Income' in metric:
-                                    df.at[idx, col] = f"{value:,.0f}"
+                                    df.loc[idx, col] = f"{value:,.0f}"
                                 else:
-                                    df.at[idx, col] = f"{value:.2f}"
+                                    # Check if the number is a whole number
+                                    if value.is_integer():
+                                        df.loc[idx, col] = f"{value:,.0f}"
+                                    else:
+                                        df.loc[idx, col] = f"{value:,.2f}"
+
+                    # Convert all columns to string type after formatting
+                    for col in df.columns[1:]:
+                        df[col] = df[col].astype(str)
 
                 # ✅ Define sheet name dynamically
                 sheet_name = json_file.replace(".json", "").replace("_", " ").title()[:31]  
