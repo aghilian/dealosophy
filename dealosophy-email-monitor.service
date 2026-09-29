@@ -1,0 +1,17 @@
+[Unit]
+Description=Dealosophy Email Monitor Service
+After=network.target
+
+[Service]
+User=iman
+Group=iman
+WorkingDirectory=/home/iman/dealosophy
+Environment="PATH=/home/iman/dealosophy/venv/bin"
+Environment="PYTHONPATH=/home/iman/dealosophy"
+Environment="ADMIN_EMAIL=iman@opensails.ca"
+ExecStart=/home/iman/dealosophy/venv/bin/python3 email_monitor.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target 

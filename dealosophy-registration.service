@@ -1,0 +1,13 @@
+[Unit]
+Description=Dealosophy Registration Service
+After=network.target
+
+[Service]
+User=iman
+WorkingDirectory=/home/iman/dealosophy
+Environment="PATH=/home/iman/dealosophy/venv/bin"
+ExecStart=/home/iman/dealosophy/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 server:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target 

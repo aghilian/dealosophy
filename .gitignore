@@ -1,24 +1,29 @@
-# Ignore Python virtual environments
+# Python virtual environments
 venv/
 .venv/
 
-# Ignore all folders and subfolders
-*/
-
-# Ignore compiled Python files
+# Runtime data, caches and logs (replaces the old over-broad "*/" rule)
 __pycache__/
 *.pyc
 *.pyo
+logs/
+users/
+~/
 
-# Ignore system files
+# JSON includes credentials.json and token.json
+*.json
+
+# System files
 .DS_Store
 Thumbs.db
 
-# Ignore logs and environment config
+# Logs and environment config
 *.log
 .env
+.env.*
 config.py
 
-# Ignore sensitive files
-wood.pdf  # If this is a private file, keep it ignored
-
+# Private data files
+wood.pdf
+new_users.txt
+registered_users.txt
