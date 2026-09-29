@@ -2,7 +2,8 @@
 venv/
 .venv/
 
-# Runtime data, caches and logs (replaces the old over-broad "*/" rule)
+# Runtime data, caches and logs
+# (replaces the old over-broad "*/" rule, which silently ignored every subfolder)
 __pycache__/
 *.pyc
 *.pyo
@@ -10,8 +11,10 @@ logs/
 users/
 ~/
 
-# JSON includes credentials.json and token.json
+# Data and document file types (credentials.json and token.json land here too)
 *.json
+*.pdf
+*.txt
 
 # System files
 .DS_Store
@@ -23,7 +26,7 @@ Thumbs.db
 .env.*
 config.py
 
-# Private data files
+# Explicit private data files
 wood.pdf
 new_users.txt
 registered_users.txt
